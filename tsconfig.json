@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "ES2021"
+    ],
+    "pretty": true,
+    "strict": true,
+    "outDir": "dist",
+    "newLine": "crlf",
+    "module": "node16",
+    "target": "ES2021",
+    "declaration": true,
+    "skipLibCheck": true,
+    "stripInternal": true,
+    "noEmitOnError": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "moduleDetection": "force",
+    "resolveJsonModule": false,
+    "noImplicitOverride": true,
+    "noUnusedParameters": true,
+    "moduleResolution": "node16",
+    "useDefineForClassFields": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noPropertyAccessFromIndexSignature": true,
+  }
+}
