@@ -3,3 +3,6 @@ node_modules
 dist
 CHANGELOG.md
 .github
+src
+tsconfig.json
+.commitlintrc.json
