@@ -17,52 +17,78 @@ export type ResponseValidationHandler = (
   error: ResponseValidationError,
 ) => void;
 
+type AsyncOptionsSetter<QueryType, BodyType, ResponseType> = (
+  optionsSetter: AsyncOptionsSetterMethod,
+) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+
+type HandleRequestValidationError<QueryType, BodyType, ResponseType> = (
+  handler: RequestValidationHandler,
+) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+
+type HandleResponseValidationError<QueryType, BodyType, ResponseType> = (
+  handler: ResponseValidationHandler,
+) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+
+type OptionsSetter<QueryType, BodyType, ResponseType> = (
+  options: Partial<AxiosRequestConfig>,
+) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+
+type ConcatPath<QueryType, BodyType, ResponseType> = (
+  path: string,
+) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+
+type MethodSetter<QueryType, BodyType, ResponseType> = (
+  method: Method,
+) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+
+type QuerySetter<QueryType, BodyType, ResponseType> = (
+  query: QueryType,
+) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+
+type BodySetter<QueryType, BodyType, ResponseType> = (
+  body: BodyType,
+) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+
+type Exec<ResponseType> = () => Promise<ResponseType>;
+
 export type ValidatedRequestMaker<
   QueryType = unknown,
   BodyType = unknown,
   ResponseType = unknown,
 > = {
-  asyncOptionsSetter: (
-    optionsSetter: AsyncOptionsSetterMethod,
-  ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
-  handleRequestValidationError(
-    handler: RequestValidationHandler,
-  ): ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
-  handleResponseValidationError(
-    handler: ResponseValidationHandler,
-  ): ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
-  options: (
-    options: Partial<AxiosRequestConfig>,
-  ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
-  concatPath: (
-    path: string,
-  ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
-  method: (
-    method: Method,
-  ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
-  responseSchema: <
-    SpecificResponseType extends z.infer<ResponseSchemaType>,
-    ResponseSchemaType extends ResponseSchema,
-  >(
-    schema: ResponseSchemaType,
-  ) => ValidatedRequestMaker<QueryType, BodyType, SpecificResponseType>;
-  exec: () => Promise<ResponseType>;
+  exec: Exec<ResponseType>;
+  body: BodySetter<QueryType, BodyType, ResponseType>;
+  query: QuerySetter<QueryType, BodyType, ResponseType>;
+  method: MethodSetter<QueryType, BodyType, ResponseType>;
+  options: OptionsSetter<QueryType, BodyType, ResponseType>;
+  concatPath: ConcatPath<QueryType, BodyType, ResponseType>;
+  asyncOptionsSetter: AsyncOptionsSetter<QueryType, BodyType, ResponseType>;
   querySchema: <
     SpecificQueryType extends z.infer<QuerySchemaType>,
     QuerySchemaType extends QuerySchema,
   >(
     schema: QuerySchemaType,
   ) => ValidatedRequestMaker<SpecificQueryType, BodyType, ResponseType>;
-  query: (
-    query: QueryType,
-  ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
   bodySchema: <
     SpecificBodyType extends z.infer<BodySchemaType>,
     BodySchemaType extends BodySchema,
   >(
     schema: BodySchemaType,
   ) => ValidatedRequestMaker<QueryType, SpecificBodyType, ResponseType>;
-  body: (
-    body: BodyType,
-  ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+  handleRequestValidationError: HandleRequestValidationError<
+    QueryType,
+    BodyType,
+    ResponseType
+  >;
+  handleResponseValidationError: HandleResponseValidationError<
+    QueryType,
+    BodyType,
+    ResponseType
+  >;
+  responseSchema: <
+    SpecificResponseType extends z.infer<ResponseSchemaType>,
+    ResponseSchemaType extends ResponseSchema,
+  >(
+    schema: ResponseSchemaType,
+  ) => ValidatedRequestMaker<QueryType, BodyType, SpecificResponseType>;
 };
