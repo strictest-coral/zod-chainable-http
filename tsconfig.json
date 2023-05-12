@@ -1,18 +1,15 @@
 {
   "compilerOptions": {
     "lib": [
-      "es5",
-      "es6",
-      "es7",
-      "esnext",
-      "dom"
+      "ES2019"
     ],
     "pretty": true,
     "strict": true,
     "outDir": "dist",
     "newLine": "lf",
-    "module": "node16",
-    "target": "es2018",
+    "module": "CommonJS",
+    "target": "ES2019",
+    "sourceMap": true,
     "esModuleInterop": true,
     "declaration": true,
     "skipLibCheck": true,

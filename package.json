@@ -12,7 +12,6 @@
   "engines": {
     "node": ">=14.17"
   },
-  "type": "module",
   "scripts": {
     "test": "jest",
     "build": "tsc",
