@@ -1,3 +1,5 @@
 node_modules
 .husky/_
 dist
+CHANGELOG.md
+.github
