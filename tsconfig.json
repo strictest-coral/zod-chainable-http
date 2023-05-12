@@ -1,14 +1,19 @@
 {
   "compilerOptions": {
     "lib": [
-      "es2020"
+      "es5",
+      "es6",
+      "es7",
+      "esnext",
+      "dom"
     ],
     "pretty": true,
     "strict": true,
     "outDir": "dist",
     "newLine": "lf",
     "module": "node16",
-    "target": "es2020",
+    "target": "es2018",
+    "esModuleInterop": true,
     "declaration": true,
     "skipLibCheck": true,
     "stripInternal": true,
@@ -17,10 +22,10 @@
     "isolatedModules": true,
     "noImplicitReturns": true,
     "moduleDetection": "force",
-    "resolveJsonModule": false,
+    "resolveJsonModule": true,
     "noImplicitOverride": true,
     "noUnusedParameters": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "node",
     "useDefineForClassFields": true,
     "noUncheckedIndexedAccess": true,
     "noFallthroughCasesInSwitch": true,

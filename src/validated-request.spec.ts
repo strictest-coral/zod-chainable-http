@@ -206,7 +206,7 @@ describe(validatedRequestMaker.name, () => {
           validatedRequestMaker(host)
             .concatPath(path)
             .responseSchema(z.object({ name: z.number() }))
-            .handleResponseValidationError((error) => {
+            .handleResponseValidationError(() => {
               throw new Error(newErrorMessage);
             })
             .exec(),
@@ -236,7 +236,7 @@ describe(validatedRequestMaker.name, () => {
     beforeEach(beforeEachBlock);
 
     it('should ran the setter before each request', async () => {
-      const tokens = ['token_2', 'token_1'];
+      const tokens: [string, string] = ['token_2', 'token_1'];
       const [token2, token1] = tokens;
 
       const nockScope1 = nock(host)

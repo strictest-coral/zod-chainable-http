@@ -15,7 +15,7 @@ export class RequestValidationError extends Error {
   constructor(
     public zodError: ZodError,
     public metadata: RequestValidationErrorMetadata,
-    public message: string = 'HTTP Request Validation Failed',
+    public override message: string = 'HTTP Request Validation Failed',
   ) {
     super(message);
     this.name = 'RequestValidationError';
@@ -26,7 +26,7 @@ export class ResponseValidationError extends Error {
   constructor(
     public zodError: ZodError,
     public metadata: ResponseValidationErrorMetadata,
-    public message: string = 'HTTP Response Validation Failed',
+    public override message: string = 'HTTP Response Validation Failed',
   ) {
     super(message);
     this.name = 'ResponseValidationError';
