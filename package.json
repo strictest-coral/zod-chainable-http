@@ -1,10 +1,21 @@
 {
-  "name": "zod-chainable-http",
-  "version": "0.0.1",
+  "name": "zoxios",
+  "version": "0.0.0",
   "description": "A chainable validated HTTP request maker",
-  "main": "src/index.ts",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=14.17"
+  },
+  "type": "module",
   "scripts": {
     "test": "jest",
+    "build": "tsc",
     "release": "standard-version",
     "prepare": "husky install"
   },
@@ -16,10 +27,11 @@
     "chainable"
   ],
   "repository": {
-    "url": "https://github.com/strictest-coral/zod-chainable-http"
+    "url": "https://github.com/strictest-coral/zoxios"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "author": "Almog Vagman Ciprut",
   "license": "ISC",

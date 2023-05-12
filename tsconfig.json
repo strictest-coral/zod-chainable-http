@@ -1,19 +1,20 @@
 {
   "compilerOptions": {
     "lib": [
-      "ES2021"
+      "es2020"
     ],
     "pretty": true,
     "strict": true,
     "outDir": "dist",
-    "newLine": "crlf",
+    "newLine": "lf",
     "module": "node16",
-    "target": "ES2021",
+    "target": "es2020",
     "declaration": true,
     "skipLibCheck": true,
     "stripInternal": true,
     "noEmitOnError": true,
     "noUnusedLocals": true,
+    "isolatedModules": true,
     "noImplicitReturns": true,
     "moduleDetection": "force",
     "resolveJsonModule": false,
@@ -26,5 +27,13 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "noPropertyAccessFromIndexSignature": true,
+  },
+  "include": [
+    "src"
+  ],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "experimentalResolver": true
   }
 }
