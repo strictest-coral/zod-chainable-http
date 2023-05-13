@@ -1,4 +1,4 @@
-import Axios, { AxiosRequestConfig, Method } from 'axios';
+import axios, { AxiosRequestConfig, Method } from 'axios';
 import { z, ZodSchema } from 'zod';
 import {
   AsyncOptionsSetterMethod,
@@ -65,7 +65,7 @@ async function execRequest<ResponseType>(
     schemas?.body,
   );
 
-  const response = await Axios(requestOptions);
+  const response = await axios(requestOptions);
 
   return handleValidatedResponse(
     requestOptions,

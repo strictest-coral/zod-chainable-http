@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-nested-callbacks */
 import nock from 'nock';
 import { z } from 'zod';
