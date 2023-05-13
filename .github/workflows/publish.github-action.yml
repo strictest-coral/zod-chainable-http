@@ -37,12 +37,8 @@ jobs:
       - name: Push tag and changelog to git
         run: git push --follow-tags origin master
 
-      - name: Build Service
-        run: npm run build
-
       - name: Publish SDK Package
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm run build
           npm publish
