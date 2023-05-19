@@ -2,8 +2,11 @@ import axios, { AxiosRequestConfig, Method } from 'axios';
 import { z, ZodSchema } from 'zod';
 import {
   AsyncOptionsSetterMethod,
+  BodyFullSchema,
   BodySchema,
+  QueryFullSchema,
   QuerySchema,
+  RequestMakerDefinition,
   RequestValidationHandler,
   ResponseSchema,
   ResponseValidationHandler,
@@ -117,8 +120,8 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
   let baseOptions: AxiosRequestConfig = { url: host };
   let asyncOptionsSetterMethod: AsyncOptionsSetterMethod;
 
-  let querySchema: QuerySchema | undefined;
-  let bodySchema: BodySchema | undefined;
+  let querySchema: QueryFullSchema;
+  let bodySchema: BodyFullSchema;
   let responseSchema: ZodSchema | undefined;
   let requestValidationErrorHandler: RequestValidationHandler =
     defaultRequestValidationHandler;
@@ -138,7 +141,7 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
         options: baseOptions,
         body: baseOptions.data,
         query: baseOptions.params,
-      };
+      } as RequestMakerDefinition<undefined, undefined>;
     },
     asyncOptionsSetter: (optionsSetter: AsyncOptionsSetterMethod) => {
       asyncOptionsSetterMethod = optionsSetter;
@@ -178,7 +181,7 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
 
       return requestMaker as unknown as ValidatedRequestMaker<
         QuerySchemaType,
-        ZodSchema<unknown>,
+        undefined,
         ZodSchema<unknown>
       >;
     },
@@ -196,8 +199,8 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       responseSchema = schema;
 
       return requestMaker as ValidatedRequestMaker<
-        ZodSchema<unknown>,
-        ZodSchema<unknown>,
+        undefined,
+        undefined,
         SpecificResponseType
       >;
     },
@@ -220,7 +223,7 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
     bodySchema: <BodySchemaType extends BodySchema>(schema: BodySchemaType) => {
       bodySchema = schema;
       return requestMaker as unknown as ValidatedRequestMaker<
-        ZodSchema<unknown>,
+        undefined,
         BodySchemaType,
         ZodSchema<unknown>
       >;

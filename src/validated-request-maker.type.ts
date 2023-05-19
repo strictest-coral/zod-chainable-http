@@ -12,8 +12,8 @@ export type AsyncOptionsSetterMethod = () => Promise<
   Partial<AxiosRequestConfig>
 >;
 export type UnknownSchema = ZodSchema<unknown>;
-export type QueryFullSchema = QuerySchema | UnknownSchema;
-export type BodyFullSchema = BodySchema | UnknownSchema;
+export type QueryFullSchema = QuerySchema | undefined;
+export type BodyFullSchema = BodySchema | undefined;
 
 export type RequestValidationHandler = (error: RequestValidationError) => void;
 export type ResponseValidationHandler = (
@@ -71,7 +71,7 @@ type QuerySetter<
   BodyType extends BodyFullSchema,
   ResponseType,
 > = (
-  query: z.infer<QueryType>,
+  query: QueryType extends QuerySchema ? z.infer<QueryType> : unknown,
 ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
 type BodySetter<
@@ -79,19 +79,16 @@ type BodySetter<
   BodyType extends BodyFullSchema,
   ResponseType,
 > = (
-  body: z.infer<BodyType>,
+  body: BodyType extends BodySchema ? z.infer<BodyType> : unknown,
 ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
 type Exec<ResponseType> = () => Promise<ResponseType>;
 
-type GetDefinition<
-  QuerySchemaType extends QueryFullSchema,
-  BodySchemaType extends BodyFullSchema,
-> = () => {
+export type RequestMakerDefinition<QuerySchemaType, BodySchemaType> = {
   query?: unknown;
   body?: unknown;
-  querySchema?: QuerySchemaType;
-  bodySchema?: BodySchemaType;
+  querySchema: QuerySchemaType;
+  bodySchema: BodySchemaType;
   responseSchema?: ResponseSchema;
   path: string;
   hostname: string;
@@ -100,11 +97,11 @@ type GetDefinition<
 };
 
 export type ValidatedRequestMaker<
-  QuerySchemaType extends QueryFullSchema = UnknownSchema,
-  BodySchemaType extends BodyFullSchema = UnknownSchema,
+  QuerySchemaType extends QueryFullSchema = undefined,
+  BodySchemaType extends BodyFullSchema = undefined,
   ResponseType = unknown,
 > = {
-  getDefinition: GetDefinition<QuerySchemaType, BodySchemaType>;
+  getDefinition: () => RequestMakerDefinition<QuerySchemaType, BodySchemaType>;
   exec: Exec<ResponseType>;
   body: BodySetter<QuerySchemaType, BodySchemaType, ResponseType>;
   query: QuerySetter<QuerySchemaType, BodySchemaType, ResponseType>;

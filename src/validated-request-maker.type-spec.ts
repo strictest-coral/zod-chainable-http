@@ -1,6 +1,7 @@
-import { z } from 'zod';
+import { ZodDate, ZodNumber, ZodObject, ZodString, ZodTypeAny, z } from 'zod';
 import { validatedRequestMaker } from './validated-request-maker';
 import type { Equal, Expect } from './type.utils';
+import { AxiosRequestConfig } from 'axios';
 
 export function validatedRequestTest() {
   const validatedRequest = validatedRequestMaker('host')
@@ -16,6 +17,10 @@ export function validatedRequestTest() {
   type AwaitedResponseType = Awaited<ReturnType<typeof validatedRequest.exec>>;
   type DefinitionType = ReturnType<typeof validatedRequest.getDefinition>;
 
+  type BodySchemaType = ZodObject<{ name: ZodString }, "strip", ZodTypeAny, BodyType, BodyType>;
+  type QuerySchemaType = ZodObject<{ id: ZodNumber,startDate: ZodDate }, "strip", ZodTypeAny, QueryType, QueryType>;
+
+
   type Tests = [
     Expect<Equal<BodyType, { name: string }>>,
     Expect<Equal<QueryType, { id: number; startDate: Date }>>,
@@ -27,6 +32,9 @@ export function validatedRequestTest() {
     >,
     Expect<Equal<DefinitionType['body'], unknown>>,
     Expect<Equal<DefinitionType['query'], unknown>>,
+    Expect<Equal<DefinitionType['bodySchema'], BodySchemaType>>,
+    Expect<Equal<DefinitionType['querySchema'], QuerySchemaType>>,
+    Expect<Equal<DefinitionType['options'], AxiosRequestConfig>>,
   ];
 }
 
@@ -36,10 +44,13 @@ export function schemaLessRequestTest() {
   type BodyType = Parameters<typeof validatedRequest.body>[0];
   type QueryType = Parameters<typeof validatedRequest.query>[0];
   type ResponseType = ReturnType<typeof validatedRequest.exec>;
+  type DefinitionType = ReturnType<typeof validatedRequest.getDefinition>;
 
   type Tests = [
     Expect<Equal<BodyType, unknown>>,
     Expect<Equal<QueryType, unknown>>,
     Expect<Equal<ResponseType, Promise<unknown>>>,
+    Expect<Equal<DefinitionType['bodySchema'], undefined>>,
+    Expect<Equal<DefinitionType['querySchema'], undefined>>,
   ];
 }
