@@ -14,6 +14,17 @@
 
 ## installation
 
+### Install peer dependencies
+
+```bash
+npm i axios zod
+```
+
+### Install zoxios
+```bash
+npm i zoxios
+```
+
 ## Basic usage
 
 Parsing request's query and response's body.
