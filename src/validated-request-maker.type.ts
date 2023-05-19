@@ -11,49 +11,87 @@ export type ResponseSchema = ZodSchema<unknown>;
 export type AsyncOptionsSetterMethod = () => Promise<
   Partial<AxiosRequestConfig>
 >;
+export type UnknownSchema = ZodSchema<unknown>;
+export type QueryFullSchema = QuerySchema | UnknownSchema;
+export type BodyFullSchema = BodySchema | UnknownSchema;
 
 export type RequestValidationHandler = (error: RequestValidationError) => void;
 export type ResponseValidationHandler = (
   error: ResponseValidationError,
 ) => void;
 
-type AsyncOptionsSetter<QueryType, BodyType, ResponseType> = (
+type AsyncOptionsSetter<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (
   optionsSetter: AsyncOptionsSetterMethod,
 ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
-type HandleRequestValidationError<QueryType, BodyType, ResponseType> = (
+type HandleRequestValidationError<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (
   handler: RequestValidationHandler,
 ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
-type HandleResponseValidationError<QueryType, BodyType, ResponseType> = (
+type HandleResponseValidationError<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (
   handler: ResponseValidationHandler,
 ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
-type OptionsSetter<QueryType, BodyType, ResponseType> = (
+type OptionsSetter<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (
   options: Partial<AxiosRequestConfig>,
 ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
-type ConcatPath<QueryType, BodyType, ResponseType> = (
-  path: string,
-) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+type ConcatPath<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (path: string) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
-type MethodSetter<QueryType, BodyType, ResponseType> = (
+type MethodSetter<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (
   method: Method,
 ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
-type QuerySetter<QueryType, BodyType, ResponseType> = (
-  query: QueryType,
+type QuerySetter<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (
+  query: z.infer<QueryType>,
 ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
-type BodySetter<QueryType, BodyType, ResponseType> = (
-  body: BodyType,
+type BodySetter<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (
+  body: z.infer<BodyType>,
 ) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
 
 type Exec<ResponseType> = () => Promise<ResponseType>;
 
-type GetDefinition = () => {
-  query: unknown;
-  body: unknown;
+type GetDefinition<
+  QuerySchemaType extends QueryFullSchema,
+  BodySchemaType extends BodyFullSchema,
+> = () => {
+  query?: unknown;
+  body?: unknown;
+  querySchema?: QuerySchemaType;
+  bodySchema?: BodySchemaType;
   responseSchema?: ResponseSchema;
   path: string;
   hostname: string;
@@ -62,38 +100,36 @@ type GetDefinition = () => {
 };
 
 export type ValidatedRequestMaker<
-  QueryType = unknown,
-  BodyType = unknown,
+  QuerySchemaType extends QueryFullSchema = UnknownSchema,
+  BodySchemaType extends BodyFullSchema = UnknownSchema,
   ResponseType = unknown,
 > = {
-  getDefinition: GetDefinition;
+  getDefinition: GetDefinition<QuerySchemaType, BodySchemaType>;
   exec: Exec<ResponseType>;
-  body: BodySetter<QueryType, BodyType, ResponseType>;
-  query: QuerySetter<QueryType, BodyType, ResponseType>;
-  method: MethodSetter<QueryType, BodyType, ResponseType>;
-  options: OptionsSetter<QueryType, BodyType, ResponseType>;
-  concatPath: ConcatPath<QueryType, BodyType, ResponseType>;
-  asyncOptionsSetter: AsyncOptionsSetter<QueryType, BodyType, ResponseType>;
-  querySchema: <
-    SpecificQueryType extends z.infer<QuerySchemaType>,
-    QuerySchemaType extends QuerySchema,
-  >(
+  body: BodySetter<QuerySchemaType, BodySchemaType, ResponseType>;
+  query: QuerySetter<QuerySchemaType, BodySchemaType, ResponseType>;
+  method: MethodSetter<QuerySchemaType, BodySchemaType, ResponseType>;
+  options: OptionsSetter<QuerySchemaType, BodySchemaType, ResponseType>;
+  concatPath: ConcatPath<QuerySchemaType, BodySchemaType, ResponseType>;
+  asyncOptionsSetter: AsyncOptionsSetter<
+    QuerySchemaType,
+    BodySchemaType,
+    ResponseType
+  >;
+  querySchema: <QuerySchemaType extends QuerySchema>(
     schema: QuerySchemaType,
-  ) => ValidatedRequestMaker<SpecificQueryType, BodyType, ResponseType>;
-  bodySchema: <
-    SpecificBodyType extends z.infer<BodySchemaType>,
-    BodySchemaType extends BodySchema,
-  >(
+  ) => ValidatedRequestMaker<QuerySchemaType, BodySchemaType, ResponseType>;
+  bodySchema: <BodySchemaType extends BodySchema>(
     schema: BodySchemaType,
-  ) => ValidatedRequestMaker<QueryType, SpecificBodyType, ResponseType>;
+  ) => ValidatedRequestMaker<QuerySchemaType, BodySchemaType, ResponseType>;
   handleRequestValidationError: HandleRequestValidationError<
-    QueryType,
-    BodyType,
+    QuerySchemaType,
+    BodySchemaType,
     ResponseType
   >;
   handleResponseValidationError: HandleResponseValidationError<
-    QueryType,
-    BodyType,
+    QuerySchemaType,
+    BodySchemaType,
     ResponseType
   >;
   responseSchema: <
@@ -101,5 +137,9 @@ export type ValidatedRequestMaker<
     ResponseSchemaType extends ResponseSchema,
   >(
     schema: ResponseSchemaType,
-  ) => ValidatedRequestMaker<QueryType, BodyType, SpecificResponseType>;
+  ) => ValidatedRequestMaker<
+    QuerySchemaType,
+    BodySchemaType,
+    SpecificResponseType
+  >;
 };

@@ -175,7 +175,12 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       schema: QuerySchemaType,
     ) => {
       querySchema = schema;
-      return requestMaker;
+
+      return requestMaker as unknown as ValidatedRequestMaker<
+        QuerySchemaType,
+        ZodSchema<unknown>,
+        ZodSchema<unknown>
+      >;
     },
     query: <QueryType>(query: QueryType) => {
       baseOptions.params = query;
@@ -191,8 +196,8 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       responseSchema = schema;
 
       return requestMaker as ValidatedRequestMaker<
-        unknown,
-        unknown,
+        ZodSchema<unknown>,
+        ZodSchema<unknown>,
         SpecificResponseType
       >;
     },
@@ -214,7 +219,11 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       }),
     bodySchema: <BodySchemaType extends BodySchema>(schema: BodySchemaType) => {
       bodySchema = schema;
-      return requestMaker;
+      return requestMaker as unknown as ValidatedRequestMaker<
+        ZodSchema<unknown>,
+        BodySchemaType,
+        ZodSchema<unknown>
+      >;
     },
     body: <BodyType>(body: BodyType) => {
       baseOptions.data = body;
