@@ -51,11 +51,22 @@ type BodySetter<QueryType, BodyType, ResponseType> = (
 
 type Exec<ResponseType> = () => Promise<ResponseType>;
 
+type GetDefinition = () => {
+  query: unknown;
+  body: unknown;
+  responseSchema?: ResponseSchema;
+  path: string;
+  hostname: string;
+  method?: Method;
+  options: AxiosRequestConfig;
+};
+
 export type ValidatedRequestMaker<
   QueryType = unknown,
   BodyType = unknown,
   ResponseType = unknown,
 > = {
+  getDefinition: GetDefinition;
   exec: Exec<ResponseType>;
   body: BodySetter<QueryType, BodyType, ResponseType>;
   query: QuerySetter<QueryType, BodyType, ResponseType>;

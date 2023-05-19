@@ -124,8 +124,22 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
     defaultRequestValidationHandler;
   let responseValidationErrorHandler: ResponseValidationHandler =
     defaultResponseValidationHandler;
+  let requestPath = '';
 
   const requestMaker: ValidatedRequestMaker = {
+    getDefinition: () => {
+      return {
+        hostname: host,
+        querySchema,
+        bodySchema,
+        responseSchema,
+        method: baseOptions.method as Method,
+        path: requestPath,
+        options: baseOptions,
+        body: baseOptions.data,
+        query: baseOptions.params,
+      };
+    },
     asyncOptionsSetter: (optionsSetter: AsyncOptionsSetterMethod) => {
       asyncOptionsSetterMethod = optionsSetter;
       return requestMaker;
@@ -149,7 +163,8 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       return requestMaker;
     },
     concatPath: (path: string) => {
-      baseOptions.url += `/${path}`;
+      requestPath += `/${path}`;
+      baseOptions.url = `${host}${requestPath}`;
       return requestMaker;
     },
     method: (method: Method) => {
