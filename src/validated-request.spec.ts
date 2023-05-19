@@ -327,4 +327,32 @@ describe(validatedRequestMaker.name, () => {
       expect(nockScope2.isDone()).toBe(false);
     });
   });
+
+  describe('when getting definition', () => {
+    const querySchema = z.object({ startDate: z.date(), endDate: z.date() });
+    const bodySchema = z.object({ name: z.string(), age: z.number() });
+    const responseSchema = z.object({ id: z.number() });
+    const body = { name: 'n', age: 1 };
+    const query = { endDate: new Date(), startDate: new Date() };
+    it('should return all defined values', () => {
+      const requestMaker = validatedRequestMaker('localhost')
+        .concatPath('api')
+        .concatPath('orders')
+        .querySchema(querySchema)
+        .bodySchema(bodySchema)
+        .responseSchema(responseSchema)
+        .body(body)
+        .query(query);
+
+      const definition = requestMaker.getDefinition();
+
+      expect(definition.querySchema).toEqual(querySchema);
+      expect(definition.bodySchema).toEqual(bodySchema);
+      expect(definition.responseSchema).toEqual(responseSchema);
+      expect(definition.body).toEqual(body);
+      expect(definition.query).toEqual(query);
+      expect(definition.hostname).toEqual('localhost');
+      expect(definition.path).toEqual('/api/orders');
+    });
+  });
 });

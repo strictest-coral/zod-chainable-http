@@ -2,8 +2,11 @@ import axios, { AxiosRequestConfig, Method } from 'axios';
 import { z, ZodSchema } from 'zod';
 import {
   AsyncOptionsSetterMethod,
+  BodyFullSchema,
   BodySchema,
+  QueryFullSchema,
   QuerySchema,
+  RequestMakerDefinition,
   RequestValidationHandler,
   ResponseSchema,
   ResponseValidationHandler,
@@ -117,15 +120,29 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
   let baseOptions: AxiosRequestConfig = { url: host };
   let asyncOptionsSetterMethod: AsyncOptionsSetterMethod;
 
-  let querySchema: QuerySchema | undefined;
-  let bodySchema: BodySchema | undefined;
+  let querySchema: QueryFullSchema;
+  let bodySchema: BodyFullSchema;
   let responseSchema: ZodSchema | undefined;
   let requestValidationErrorHandler: RequestValidationHandler =
     defaultRequestValidationHandler;
   let responseValidationErrorHandler: ResponseValidationHandler =
     defaultResponseValidationHandler;
+  let requestPath = '';
 
   const requestMaker: ValidatedRequestMaker = {
+    getDefinition: () => {
+      return {
+        hostname: host,
+        querySchema,
+        bodySchema,
+        responseSchema,
+        method: baseOptions.method as Method,
+        path: requestPath,
+        options: baseOptions,
+        body: baseOptions.data,
+        query: baseOptions.params,
+      } as RequestMakerDefinition<undefined, undefined>;
+    },
     asyncOptionsSetter: (optionsSetter: AsyncOptionsSetterMethod) => {
       asyncOptionsSetterMethod = optionsSetter;
       return requestMaker;
@@ -149,7 +166,8 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       return requestMaker;
     },
     concatPath: (path: string) => {
-      baseOptions.url += `/${path}`;
+      requestPath += `/${path}`;
+      baseOptions.url = `${host}${requestPath}`;
       return requestMaker;
     },
     method: (method: Method) => {
@@ -160,7 +178,12 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       schema: QuerySchemaType,
     ) => {
       querySchema = schema;
-      return requestMaker;
+
+      return requestMaker as unknown as ValidatedRequestMaker<
+        QuerySchemaType,
+        undefined,
+        ZodSchema<unknown>
+      >;
     },
     query: <QueryType>(query: QueryType) => {
       baseOptions.params = query;
@@ -176,8 +199,8 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       responseSchema = schema;
 
       return requestMaker as ValidatedRequestMaker<
-        unknown,
-        unknown,
+        undefined,
+        undefined,
         SpecificResponseType
       >;
     },
@@ -199,7 +222,11 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       }),
     bodySchema: <BodySchemaType extends BodySchema>(schema: BodySchemaType) => {
       bodySchema = schema;
-      return requestMaker;
+      return requestMaker as unknown as ValidatedRequestMaker<
+        undefined,
+        BodySchemaType,
+        ZodSchema<unknown>
+      >;
     },
     body: <BodyType>(body: BodyType) => {
       baseOptions.data = body;

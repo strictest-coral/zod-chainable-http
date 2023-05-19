@@ -14,6 +14,17 @@
 
 ## installation
 
+### Install peer dependencies
+
+```bash
+npm i axios zod
+```
+
+### Install zoxios
+```bash
+npm i zoxios
+```
+
 ## Basic usage
 
 Parsing request's query and response's body.
@@ -157,3 +168,34 @@ validatedRequestMaker('http://hostname')
 ```
 This example will create the following URL:
 `http://hostname/api/users/5`
+
+
+## .getDefinition
+Will return the definition of the request-maker which will include the hostname, querySchema, bodySchema, responseSchema, query, body, path, options and method.
+
+```typescript
+    const body = { name: 'n', age: 1 };
+    const responseSchema = z.object({ id: z.number() });
+    const query = { endDate: new Date(), startDate: new Date() };
+    const bodySchema = z.object({ name: z.string(), age: z.number() });
+    const querySchema = z.object({ startDate: z.date(), endDate: z.date() });
+
+    const requestMaker = validatedRequestMaker('localhost')
+        .concatPath('api')
+        .concatPath('orders')
+        .querySchema(querySchema)
+        .bodySchema(bodySchema)
+        .responseSchema(responseSchema)
+        .body(body)
+        .query(query);
+
+      const definition = requestMaker.getDefinition();
+
+      // definition.body = body;
+      // definition.query = query;
+      // definition.path = '/api/orders';
+      // definition.hostname = 'localhost';
+      // definition.bodySchema = bodySchema;
+      // definition.querySchema = querySchema;
+      // definition.responseSchema = responseSchema;
+```

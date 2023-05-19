@@ -6,3 +6,5 @@ CHANGELOG.md
 src
 tsconfig.json
 .commitlintrc.json
+**/*.type-spec.ts
+src/type.utils.ts
