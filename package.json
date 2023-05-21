@@ -1,12 +1,14 @@
 {
   "name": "zoxios",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "A chainable validated HTTP request maker",
   "engines": {
     "node": ">=14.17"
   },
   "main": "dist/index.js",
-  "files": ["/src"],
+  "files": [
+    "/src"
+  ],
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
