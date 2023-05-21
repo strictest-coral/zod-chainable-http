@@ -81,6 +81,12 @@ type BodySetter<
 
 type Exec<ResponseType> = () => Promise<ResponseType>;
 
+type HostSetter<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (host: string) => RequestMaker<QueryType, BodyType, ResponseType>;
+
 export type RequestMakerDefinition<QuerySchemaType, BodySchemaType> = {
   query?: unknown;
   body?: unknown;
@@ -98,13 +104,14 @@ export type RequestMaker<
   BodySchemaType extends BodyFullSchema = undefined,
   ResponseType = unknown,
 > = {
-  getDefinition: () => RequestMakerDefinition<QuerySchemaType, BodySchemaType>;
+  host: HostSetter<QuerySchemaType, BodySchemaType, ResponseType>;
   exec: Exec<ResponseType>;
   body: BodySetter<QuerySchemaType, BodySchemaType, ResponseType>;
   query: QuerySetter<QuerySchemaType, BodySchemaType, ResponseType>;
   method: MethodSetter<QuerySchemaType, BodySchemaType, ResponseType>;
   options: OptionsSetter<QuerySchemaType, BodySchemaType, ResponseType>;
   concatPath: ConcatPath<QuerySchemaType, BodySchemaType, ResponseType>;
+  getDefinition: () => RequestMakerDefinition<QuerySchemaType, BodySchemaType>;
   asyncOptionsSetter: AsyncOptionsSetter<
     QuerySchemaType,
     BodySchemaType,

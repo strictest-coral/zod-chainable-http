@@ -201,3 +201,16 @@ const definition = requestMaker.getDefinition();
 // definition.querySchema = querySchema;
 // definition.responseSchema = responseSchema;
 ```
+
+## .host
+Will change the host of the request-maker.
+
+```typescript
+const requestMaker = zoxios('https://localhost-1').concatPath('api').method('get');
+
+// GET https://localhost-1/api
+const validatedRequestResponse1 = await requestMaker.exec();
+
+// GET https://localhost-2/api
+const validatedRequestResponse2 = await requestMaker.host('https://localhost-2').exec();
+```

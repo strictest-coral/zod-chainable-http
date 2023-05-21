@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import { z, ZodSchema } from 'zod';
 import {
@@ -93,6 +94,10 @@ function validateRequestItem<RequestItemType>(
   return parseResponse.data;
 }
 
+function getURL(host = '', path = '') {
+  return `${host}${path}`;
+}
+
 /**
   This wrapper allows to optionally validate the request / response / both using Zod.
   It has a chainable interface that can ease the process of creating custom API wrappers, it also allows to minimize code duplication when multiple endpoints have the same base path, HTTP-method or request-body\query, by creating a chain including all the common options between them.
@@ -113,8 +118,10 @@ function validateRequestItem<RequestItemType>(
     .query({ name: '1' })
     .exec();
  */
-export function zoxios(host: string): RequestMaker {
-  let baseOptions: AxiosRequestConfig = { url: host };
+export function zoxios(host?: string): RequestMaker {
+  let hostname: string | undefined = host;
+
+  let baseOptions: AxiosRequestConfig = { url: hostname };
   let asyncOptionsSetterMethod: AsyncOptionsSetterMethod;
 
   let querySchema: QueryFullSchema;
@@ -129,7 +136,7 @@ export function zoxios(host: string): RequestMaker {
   const requestMaker: RequestMaker = {
     getDefinition: () => {
       return {
-        hostname: host,
+        hostname,
         querySchema,
         bodySchema,
         responseSchema,
@@ -139,6 +146,12 @@ export function zoxios(host: string): RequestMaker {
         body: baseOptions.data,
         query: baseOptions.params,
       } as RequestMakerDefinition<undefined, undefined>;
+    },
+    host: (host: string) => {
+      hostname = host;
+      baseOptions.url = getURL(hostname, requestPath);
+
+      return requestMaker;
     },
     asyncOptionsSetter: (optionsSetter: AsyncOptionsSetterMethod) => {
       asyncOptionsSetterMethod = optionsSetter;
@@ -164,7 +177,7 @@ export function zoxios(host: string): RequestMaker {
     },
     concatPath: (path: string) => {
       requestPath += `/${path}`;
-      baseOptions.url = `${host}${requestPath}`;
+      baseOptions.url = getURL(hostname, requestPath);
       return requestMaker;
     },
     method: (method: Method) => {

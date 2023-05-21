@@ -12,6 +12,29 @@ const beforeEachBlock = () => {
 };
 
 describe(zoxios.name, () => {
+  describe('when changing hostname', () => {
+    beforeEach(beforeEachBlock);
+
+    const path = 'api';
+    const host1 = 'https://localhost-1';
+    const host2 = 'https://localhost-2';
+    it(`should make a request to the new hostname`, async () => {
+      const response = { name: 'yes' };
+
+      const nockScope1 = nock(host1).get(`/${path}`).reply(200, response);
+      const nockScope2 = nock(host2).get(`/${path}`).reply(200, response);
+
+      const requestMaker = zoxios(host1).concatPath(path).method('get');
+      const validatedRequestResponse1 = await requestMaker.exec();
+
+      const validatedRequestResponse2 = await requestMaker.host(host2).exec();
+
+      expect(nockScope1.isDone()).toBe(true);
+      expect(nockScope2.isDone()).toBe(true);
+      expect(validatedRequestResponse1).toMatchObject(response);
+      expect(validatedRequestResponse2).toMatchObject(response);
+    });
+  });
   describe('when calling path multiple times', () => {
     beforeEach(beforeEachBlock);
     it(`should concat all of the paths one after the other while adding '/' between them`, async () => {
@@ -246,7 +269,7 @@ describe(zoxios.name, () => {
         .matchHeader('Authorization', token2)
         .reply(200);
 
-      const requestMaker = requestMaker(host)
+      const requestMaker = zoxios(host)
         .method('get')
         .concatPath(path)
         .asyncOptionsSetter(() =>
@@ -268,7 +291,7 @@ describe(zoxios.name, () => {
         .matchHeader('Authorization', token)
         .reply(200);
 
-      const requestMaker = requestMaker(host)
+      const requestMaker = zoxios(host)
         .method('get')
         .concatPath(path)
         .options({ headers: { Authorization: 'no-token' } })
@@ -332,7 +355,7 @@ describe(zoxios.name, () => {
     const body = { name: 'n', age: 1 };
     const query = { endDate: new Date(), startDate: new Date() };
     it('should return all defined values', () => {
-      const requestMaker = requestMaker('localhost')
+      const requestMaker = zoxios('localhost')
         .concatPath('api')
         .concatPath('orders')
         .querySchema(querySchema)
