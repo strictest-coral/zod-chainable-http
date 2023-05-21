@@ -1,10 +1,10 @@
 import { ZodDate, ZodNumber, ZodObject, ZodString, ZodTypeAny, z } from 'zod';
-import { validatedRequestMaker } from './validated-request-maker';
+import { zoxios } from './request-maker';
 import type { Equal, Expect } from './type.utils';
 import { AxiosRequestConfig } from 'axios';
 
 export function validatedRequestTest() {
-  const validatedRequest = validatedRequestMaker('host')
+  const validatedRequest = zoxios('host')
     .bodySchema(z.object({ name: z.string() }))
     .querySchema(z.object({ id: z.number(), startDate: z.date() }))
     .responseSchema(
@@ -39,7 +39,7 @@ export function validatedRequestTest() {
 }
 
 export function schemaLessRequestTest() {
-  const validatedRequest = validatedRequestMaker('host');
+  const validatedRequest = zoxios('host');
 
   type BodyType = Parameters<typeof validatedRequest.body>[0];
   type QueryType = Parameters<typeof validatedRequest.query>[0];

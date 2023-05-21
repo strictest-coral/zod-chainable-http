@@ -12,8 +12,10 @@ export type UnknownSchema = ZodSchema<unknown>;
 export type QueryFullSchema = QuerySchema | undefined;
 export type BodyFullSchema = BodySchema | undefined;
 
-export type RequestValidationHandler = (error: RequestValidationError) => void;
-export type ResponseValidationHandler = (
+export type RequestValidationErrorHandler = (
+  error: RequestValidationError,
+) => void;
+export type ResponseValidationErrorHandler = (
   error: ResponseValidationError,
 ) => void;
 
@@ -23,23 +25,23 @@ type AsyncOptionsSetter<
   ResponseType,
 > = (
   optionsSetter: AsyncOptionsSetterMethod,
-) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+) => RequestMaker<QueryType, BodyType, ResponseType>;
 
 type HandleRequestValidationError<
   QueryType extends QueryFullSchema,
   BodyType extends BodyFullSchema,
   ResponseType,
 > = (
-  handler: RequestValidationHandler,
-) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+  handler: RequestValidationErrorHandler,
+) => RequestMaker<QueryType, BodyType, ResponseType>;
 
 type HandleResponseValidationError<
   QueryType extends QueryFullSchema,
   BodyType extends BodyFullSchema,
   ResponseType,
 > = (
-  handler: ResponseValidationHandler,
-) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+  handler: ResponseValidationErrorHandler,
+) => RequestMaker<QueryType, BodyType, ResponseType>;
 
 type OptionsSetter<
   QueryType extends QueryFullSchema,
@@ -47,21 +49,19 @@ type OptionsSetter<
   ResponseType,
 > = (
   options: Partial<AxiosRequestConfig>,
-) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+) => RequestMaker<QueryType, BodyType, ResponseType>;
 
 type ConcatPath<
   QueryType extends QueryFullSchema,
   BodyType extends BodyFullSchema,
   ResponseType,
-> = (path: string) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+> = (path: string) => RequestMaker<QueryType, BodyType, ResponseType>;
 
 type MethodSetter<
   QueryType extends QueryFullSchema,
   BodyType extends BodyFullSchema,
   ResponseType,
-> = (
-  method: Method,
-) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+> = (method: Method) => RequestMaker<QueryType, BodyType, ResponseType>;
 
 type QuerySetter<
   QueryType extends QueryFullSchema,
@@ -69,7 +69,7 @@ type QuerySetter<
   ResponseType,
 > = (
   query: QueryType extends QuerySchema ? z.infer<QueryType> : unknown,
-) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+) => RequestMaker<QueryType, BodyType, ResponseType>;
 
 type BodySetter<
   QueryType extends QueryFullSchema,
@@ -77,7 +77,7 @@ type BodySetter<
   ResponseType,
 > = (
   body: BodyType extends BodySchema ? z.infer<BodyType> : unknown,
-) => ValidatedRequestMaker<QueryType, BodyType, ResponseType>;
+) => RequestMaker<QueryType, BodyType, ResponseType>;
 
 type Exec<ResponseType> = () => Promise<ResponseType>;
 
@@ -93,7 +93,7 @@ export type RequestMakerDefinition<QuerySchemaType, BodySchemaType> = {
   options: AxiosRequestConfig;
 };
 
-export type ValidatedRequestMaker<
+export type RequestMaker<
   QuerySchemaType extends QueryFullSchema = undefined,
   BodySchemaType extends BodyFullSchema = undefined,
   ResponseType = unknown,
@@ -112,10 +112,10 @@ export type ValidatedRequestMaker<
   >;
   querySchema: <QuerySchemaType extends QuerySchema>(
     schema: QuerySchemaType,
-  ) => ValidatedRequestMaker<QuerySchemaType, BodySchemaType, ResponseType>;
+  ) => RequestMaker<QuerySchemaType, BodySchemaType, ResponseType>;
   bodySchema: <BodySchemaType extends BodySchema>(
     schema: BodySchemaType,
-  ) => ValidatedRequestMaker<QuerySchemaType, BodySchemaType, ResponseType>;
+  ) => RequestMaker<QuerySchemaType, BodySchemaType, ResponseType>;
   handleRequestValidationError: HandleRequestValidationError<
     QuerySchemaType,
     BodySchemaType,
@@ -131,9 +131,5 @@ export type ValidatedRequestMaker<
     ResponseSchemaType extends ResponseSchema,
   >(
     schema: ResponseSchemaType,
-  ) => ValidatedRequestMaker<
-    QuerySchemaType,
-    BodySchemaType,
-    SpecificResponseType
-  >;
+  ) => RequestMaker<QuerySchemaType, BodySchemaType, SpecificResponseType>;
 };

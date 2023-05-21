@@ -30,8 +30,10 @@ npm i zoxios
 Parsing request's query and response's body.
 
 ```typescript
+import { zoxios } from 'zoxios';
+
 // GET http://hostname/api/orders?page=1&limit=10
-const response = await validatedRequestMaker('http://hostname/api/orders')
+const response = await zoxios('http://hostname/api/orders')
     .method('GET')
     .querySchema(z.object({ page: z.number(), limit: z.number() }))
     .query({ page: 1, limit: 10 }) // { page: number; limit: number; }
@@ -49,7 +51,7 @@ Requests can be made without defining parsing schemas for the request and the re
 
 ```typescript
 // GET http://hostname/api/orders?page=1&limit=10
-const response = await validatedRequestMaker('http://hostname/api/orders')
+const response = await zoxios('http://hostname/api/orders')
     .method('GET')
     .query({ page: 1, limit: 10 }) // unknown
     .exec();
@@ -71,7 +73,7 @@ Every request maker built on top on this one will have the same host, headers an
 function getBaseRequestMaker() {
     const options = { headers: { Authorization: `Bearer token` } };
 
-    return validatedRequestMaker('http://hostname')
+    return zoxios('http://hostname')
         .options(options)
         .concatPath('api');
 }
@@ -139,7 +141,7 @@ function getOrdersInDateRange(startDate: Date, endDate: Date) {
 Set axios options.
 Every options set here will be overridden if set again in later chains, by calling `options` or other method resetting the value you defined here. 
 ```typescript
-validatedRequestMaker('http://hostname').options({ timeout: 1000 });
+requestMaker('http://hostname').options({ timeout: 1000 });
 ```
 
 ## .asyncOptionsSetter
@@ -152,7 +154,7 @@ Other set options will have priority over this one (only relevant when same opti
 Can be useful when each request have to calculate a request-signature or a token asynchronously.
 
 ```typescript
-validatedRequestMaker('http://hostname')
+zoxios('http://hostname')
     .asyncOptionsSetter(async () => ({ headers: { Authorization: await Promise.resolve('token') } }))
 ```
 
@@ -161,7 +163,7 @@ Will concat to the path defined up until its usage.
 Each concatPath adds a "`/`" before the provided value.
 
 ```typescript
-validatedRequestMaker('http://hostname')
+zoxios('http://hostname')
     .concatPath('api') // current url - http://hostname/api
     .concatPath('users') // current url - http://hostname/api/users
     .concatPath(5); // current url - http://hostname/api/users/5
@@ -180,7 +182,7 @@ const query = { endDate: new Date(), startDate: new Date() };
 const bodySchema = z.object({ name: z.string(), age: z.number() });
 const querySchema = z.object({ startDate: z.date(), endDate: z.date() });
 
-const requestMaker = validatedRequestMaker('localhost')
+const requestMaker = zoxios('localhost')
     .concatPath('api')
     .concatPath('orders')
     .querySchema(querySchema)

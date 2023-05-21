@@ -2,7 +2,7 @@
 /* eslint-disable max-nested-callbacks */
 import nock from 'nock';
 import { z } from 'zod';
-import { validatedRequestMaker } from './validated-request-maker';
+import { zoxios } from './request-maker';
 import { RequestValidationError, ResponseValidationError } from './errors';
 
 const host = 'https://localhost/api';
@@ -11,7 +11,7 @@ const beforeEachBlock = () => {
   nock.cleanAll();
 };
 
-describe(validatedRequestMaker.name, () => {
+describe(zoxios.name, () => {
   describe('when calling path multiple times', () => {
     beforeEach(beforeEachBlock);
     it(`should concat all of the paths one after the other while adding '/' between them`, async () => {
@@ -22,7 +22,7 @@ describe(validatedRequestMaker.name, () => {
         .get(`/${path1}/${path2}/${path3}`)
         .reply(200, response);
 
-      const validatedRequestResponse = await validatedRequestMaker(host)
+      const validatedRequestResponse = await zoxios(host)
         .concatPath(path1)
         .concatPath(path2)
         .concatPath(path3)
@@ -49,7 +49,7 @@ describe(validatedRequestMaker.name, () => {
             .query(requestQuery)
             .reply(200, response);
 
-          const validatedRequestResponse = await validatedRequestMaker(host)
+          const validatedRequestResponse = await zoxios(host)
             .concatPath(path)
             .method('post')
             .querySchema(z.object({ id: z.string(), age: z.number() }))
@@ -65,7 +65,7 @@ describe(validatedRequestMaker.name, () => {
             .query(requestQuery)
             .reply(200, response);
 
-          const validatedRequestResponse = await validatedRequestMaker(host)
+          const validatedRequestResponse = await zoxios(host)
             .concatPath(path)
             .method('post')
             .querySchema(z.object({ id: z.string(), age: z.number() }))
@@ -87,7 +87,7 @@ describe(validatedRequestMaker.name, () => {
             .reply(200, response);
 
           await expect(() =>
-            validatedRequestMaker(host)
+            zoxios(host)
               .concatPath(path)
               .method('post')
               .querySchema(z.object({ id: z.string(), age: z.string() }))
@@ -108,7 +108,7 @@ describe(validatedRequestMaker.name, () => {
             .post(`/${path}`, requestBody)
             .reply(200, response);
 
-          const validatedRequestResponse = await validatedRequestMaker(host)
+          const validatedRequestResponse = await zoxios(host)
             .concatPath(path)
             .method('post')
             .bodySchema(z.object({ name: z.number(), street: z.string() }))
@@ -124,7 +124,7 @@ describe(validatedRequestMaker.name, () => {
             .query(requestQuery)
             .reply(200, response);
 
-          const validatedRequestResponse = await validatedRequestMaker(host)
+          const validatedRequestResponse = await zoxios(host)
             .concatPath(path)
             .method('post')
             .bodySchema(z.object({ name: z.number(), street: z.string() }))
@@ -145,7 +145,7 @@ describe(validatedRequestMaker.name, () => {
             .reply(200, response);
 
           await expect(() =>
-            validatedRequestMaker(host)
+            zoxios(host)
               .concatPath(path)
               .method('post')
               .bodySchema(z.object({ name: z.string(), street: z.string() }))
@@ -161,7 +161,7 @@ describe(validatedRequestMaker.name, () => {
           const newErrorMessage = 'test error message';
 
           await expect(() =>
-            validatedRequestMaker(host)
+            zoxios(host)
               .concatPath(path)
               .method('post')
               .bodySchema(z.object({ name: z.string(), street: z.string() }))
@@ -187,7 +187,7 @@ describe(validatedRequestMaker.name, () => {
         const nockScope = nock(host).get(`/${path}`).reply(200, response);
 
         await expect(() =>
-          validatedRequestMaker(host)
+          zoxios(host)
             .concatPath(path)
             .responseSchema(z.object({ name: z.number() }))
             .exec(),
@@ -201,7 +201,7 @@ describe(validatedRequestMaker.name, () => {
         const newErrorMessage = 'test error message';
 
         await expect(() =>
-          validatedRequestMaker(host)
+          zoxios(host)
             .concatPath(path)
             .responseSchema(z.object({ name: z.number() }))
             .handleResponseValidationError(() => {
@@ -217,7 +217,7 @@ describe(validatedRequestMaker.name, () => {
       it('should return the response', async () => {
         const nockScope = nock(host).get(`/${path}`).reply(200, response);
 
-        const validatedRequestResponse = await validatedRequestMaker(host)
+        const validatedRequestResponse = await zoxios(host)
           .concatPath(path)
           .responseSchema(z.object({ name: z.string() }))
           .exec();
@@ -246,7 +246,7 @@ describe(validatedRequestMaker.name, () => {
         .matchHeader('Authorization', token2)
         .reply(200);
 
-      const requestMaker = validatedRequestMaker(host)
+      const requestMaker = requestMaker(host)
         .method('get')
         .concatPath(path)
         .asyncOptionsSetter(() =>
@@ -268,7 +268,7 @@ describe(validatedRequestMaker.name, () => {
         .matchHeader('Authorization', token)
         .reply(200);
 
-      const requestMaker = validatedRequestMaker(host)
+      const requestMaker = requestMaker(host)
         .method('get')
         .concatPath(path)
         .options({ headers: { Authorization: 'no-token' } })
@@ -299,7 +299,7 @@ describe(validatedRequestMaker.name, () => {
         .reply(200, response);
 
       await expect(() =>
-        validatedRequestMaker(host)
+        zoxios(host)
           .bodySchema(z.object({ name: z.number(), street: z.number() }))
           .querySchema(z.object({ id: z.string(), age: z.number() }))
           .concatPath(path)
@@ -310,7 +310,7 @@ describe(validatedRequestMaker.name, () => {
       ).rejects.toThrowError(RequestValidationError);
 
       await expect(() =>
-        validatedRequestMaker(host)
+        zoxios(host)
           .bodySchema(z.object({ name: z.number(), street: z.string() }))
           .querySchema(z.object({ id: z.string(), age: z.string() }))
           .concatPath(path)
@@ -332,7 +332,7 @@ describe(validatedRequestMaker.name, () => {
     const body = { name: 'n', age: 1 };
     const query = { endDate: new Date(), startDate: new Date() };
     it('should return all defined values', () => {
-      const requestMaker = validatedRequestMaker('localhost')
+      const requestMaker = requestMaker('localhost')
         .concatPath('api')
         .concatPath('orders')
         .querySchema(querySchema)
