@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import { z, ZodSchema } from 'zod';
 import {
@@ -7,19 +8,16 @@ import {
   QueryFullSchema,
   QuerySchema,
   RequestMakerDefinition,
-  RequestValidationHandler,
+  RequestValidationErrorHandler,
   ResponseSchema,
-  ResponseValidationHandler,
-  ValidatedRequestMaker,
-} from './validated-request-maker.type';
-import {
-  RequestValidationError,
-  ResponseValidationError,
-} from './validated-request.errors';
+  ResponseValidationErrorHandler,
+  RequestMaker,
+} from './request-maker.type';
+import { RequestValidationError, ResponseValidationError } from './errors';
 import {
   defaultRequestValidationHandler,
   defaultResponseValidationHandler,
-} from './validated-request-maker.error-handler';
+} from './error-handler';
 
 async function handleValidatedResponse<ResponseType>(
   baseOptions: Partial<AxiosRequestConfig>,
@@ -96,6 +94,10 @@ function validateRequestItem<RequestItemType>(
   return parseResponse.data;
 }
 
+function getURL(host = '', path = '') {
+  return `${host}${path}`;
+}
+
 /**
   This wrapper allows to optionally validate the request / response / both using Zod.
   It has a chainable interface that can ease the process of creating custom API wrappers, it also allows to minimize code duplication when multiple endpoints have the same base path, HTTP-method or request-body\query, by creating a chain including all the common options between them.
@@ -105,7 +107,7 @@ function validateRequestItem<RequestItemType>(
   Those errors contain all of the invalid properties in the request\response and the reason for the failure.
 
   @example
-  const response = await validatedRequestMaker('http://localhost')
+  const response = await requestMaker('http://localhost')
     .concatPath('api')
     .concatPath('v2')
     .method('POST')
@@ -116,23 +118,25 @@ function validateRequestItem<RequestItemType>(
     .query({ name: '1' })
     .exec();
  */
-export function validatedRequestMaker(host: string): ValidatedRequestMaker {
-  let baseOptions: AxiosRequestConfig = { url: host };
+export function zoxios(host?: string): RequestMaker {
+  let hostname: string | undefined = host;
+
+  let baseOptions: AxiosRequestConfig = { url: hostname };
   let asyncOptionsSetterMethod: AsyncOptionsSetterMethod;
 
   let querySchema: QueryFullSchema;
   let bodySchema: BodyFullSchema;
   let responseSchema: ZodSchema | undefined;
-  let requestValidationErrorHandler: RequestValidationHandler =
+  let requestValidationErrorHandler: RequestValidationErrorHandler =
     defaultRequestValidationHandler;
-  let responseValidationErrorHandler: ResponseValidationHandler =
+  let responseValidationErrorHandler: ResponseValidationErrorHandler =
     defaultResponseValidationHandler;
   let requestPath = '';
 
-  const requestMaker: ValidatedRequestMaker = {
+  const requestMaker: RequestMaker = {
     getDefinition: () => {
       return {
-        hostname: host,
+        hostname,
         querySchema,
         bodySchema,
         responseSchema,
@@ -142,6 +146,12 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
         body: baseOptions.data,
         query: baseOptions.params,
       } as RequestMakerDefinition<undefined, undefined>;
+    },
+    host: (host: string) => {
+      hostname = host;
+      baseOptions.url = getURL(hostname, requestPath);
+
+      return requestMaker;
     },
     asyncOptionsSetter: (optionsSetter: AsyncOptionsSetterMethod) => {
       asyncOptionsSetterMethod = optionsSetter;
@@ -167,7 +177,7 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
     },
     concatPath: (path: string) => {
       requestPath += `/${path}`;
-      baseOptions.url = `${host}${requestPath}`;
+      baseOptions.url = getURL(hostname, requestPath);
       return requestMaker;
     },
     method: (method: Method) => {
@@ -179,7 +189,7 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
     ) => {
       querySchema = schema;
 
-      return requestMaker as unknown as ValidatedRequestMaker<
+      return requestMaker as unknown as RequestMaker<
         QuerySchemaType,
         undefined,
         ZodSchema<unknown>
@@ -198,7 +208,7 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
     ) => {
       responseSchema = schema;
 
-      return requestMaker as ValidatedRequestMaker<
+      return requestMaker as RequestMaker<
         undefined,
         undefined,
         SpecificResponseType
@@ -222,7 +232,7 @@ export function validatedRequestMaker(host: string): ValidatedRequestMaker {
       }),
     bodySchema: <BodySchemaType extends BodySchema>(schema: BodySchemaType) => {
       bodySchema = schema;
-      return requestMaker as unknown as ValidatedRequestMaker<
+      return requestMaker as unknown as RequestMaker<
         undefined,
         BodySchemaType,
         ZodSchema<unknown>

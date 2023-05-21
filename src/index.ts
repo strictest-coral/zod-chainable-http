@@ -1,23 +1,20 @@
 export type {
-  ValidatedRequestMaker,
+  RequestMaker,
   AsyncOptionsSetterMethod,
   BodySchema,
   QuerySchema,
-  RequestValidationHandler,
+  RequestValidationErrorHandler as RequestValidationHandler,
   ResponseSchema,
-  ResponseValidationHandler,
-} from './validated-request-maker.type';
+  ResponseValidationErrorHandler as ResponseValidationHandler,
+} from './request-maker.type';
 export type {
   ResponseValidationErrorMetadata,
   RequestValidationErrorMetadata,
-} from './validated-request.errors';
-export { validatedRequestMaker } from './validated-request-maker';
+} from './errors';
+export { zoxios } from './request-maker';
 export {
   defaultHandleValidationError,
   defaultRequestValidationHandler,
   defaultResponseValidationHandler,
-} from './validated-request-maker.error-handler';
-export {
-  RequestValidationError,
-  ResponseValidationError,
-} from './validated-request.errors';
+} from './error-handler';
+export { RequestValidationError, ResponseValidationError } from './errors';

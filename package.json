@@ -6,6 +6,7 @@
     "node": ">=14.17"
   },
   "main": "dist/index.js",
+  "files": ["/src"],
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
