@@ -12,14 +12,11 @@ import {
   ResponseValidationHandler,
   ValidatedRequestMaker,
 } from './validated-request-maker.type';
-import {
-  RequestValidationError,
-  ResponseValidationError,
-} from './validated-request.errors';
+import { RequestValidationError, ResponseValidationError } from './errors';
 import {
   defaultRequestValidationHandler,
   defaultResponseValidationHandler,
-} from './validated-request-maker.error-handler';
+} from './error-handler';
 
 async function handleValidatedResponse<ResponseType>(
   baseOptions: Partial<AxiosRequestConfig>,

@@ -174,28 +174,28 @@ This example will create the following URL:
 Will return the definition of the request-maker which will include the hostname, querySchema, bodySchema, responseSchema, query, body, path, options and method.
 
 ```typescript
-    const body = { name: 'n', age: 1 };
-    const responseSchema = z.object({ id: z.number() });
-    const query = { endDate: new Date(), startDate: new Date() };
-    const bodySchema = z.object({ name: z.string(), age: z.number() });
-    const querySchema = z.object({ startDate: z.date(), endDate: z.date() });
+const body = { name: 'n', age: 1 };
+const responseSchema = z.object({ id: z.number() });
+const query = { endDate: new Date(), startDate: new Date() };
+const bodySchema = z.object({ name: z.string(), age: z.number() });
+const querySchema = z.object({ startDate: z.date(), endDate: z.date() });
 
-    const requestMaker = validatedRequestMaker('localhost')
-        .concatPath('api')
-        .concatPath('orders')
-        .querySchema(querySchema)
-        .bodySchema(bodySchema)
-        .responseSchema(responseSchema)
-        .body(body)
-        .query(query);
+const requestMaker = validatedRequestMaker('localhost')
+    .concatPath('api')
+    .concatPath('orders')
+    .querySchema(querySchema)
+    .bodySchema(bodySchema)
+    .responseSchema(responseSchema)
+    .body(body)
+    .query(query);
 
-      const definition = requestMaker.getDefinition();
+const definition = requestMaker.getDefinition();
 
-      // definition.body = body;
-      // definition.query = query;
-      // definition.path = '/api/orders';
-      // definition.hostname = 'localhost';
-      // definition.bodySchema = bodySchema;
-      // definition.querySchema = querySchema;
-      // definition.responseSchema = responseSchema;
+// definition.body = body;
+// definition.query = query;
+// definition.path = '/api/orders';
+// definition.hostname = 'localhost';
+// definition.bodySchema = bodySchema;
+// definition.querySchema = querySchema;
+// definition.responseSchema = responseSchema;
 ```

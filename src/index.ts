@@ -10,14 +10,11 @@ export type {
 export type {
   ResponseValidationErrorMetadata,
   RequestValidationErrorMetadata,
-} from './validated-request.errors';
+} from './errors';
 export { validatedRequestMaker } from './validated-request-maker';
 export {
   defaultHandleValidationError,
   defaultRequestValidationHandler,
   defaultResponseValidationHandler,
-} from './validated-request-maker.error-handler';
-export {
-  RequestValidationError,
-  ResponseValidationError,
-} from './validated-request.errors';
+} from './error-handler';
+export { RequestValidationError, ResponseValidationError } from './errors';

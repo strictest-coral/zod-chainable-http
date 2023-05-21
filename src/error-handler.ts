@@ -1,7 +1,4 @@
-import {
-  RequestValidationError,
-  ResponseValidationError,
-} from './validated-request.errors';
+import { RequestValidationError, ResponseValidationError } from './errors';
 
 export function defaultHandleValidationError(
   error: RequestValidationError | ResponseValidationError,

@@ -3,10 +3,7 @@
 import nock from 'nock';
 import { z } from 'zod';
 import { validatedRequestMaker } from './validated-request-maker';
-import {
-  RequestValidationError,
-  ResponseValidationError,
-} from './validated-request.errors';
+import { RequestValidationError, ResponseValidationError } from './errors';
 
 const host = 'https://localhost/api';
 
