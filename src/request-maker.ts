@@ -1,23 +1,22 @@
-/* eslint-disable max-statements */
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import { z, ZodSchema } from 'zod';
 import {
   AsyncOptionsSetterMethod,
-  BodyFullSchema,
   BodySchema,
-  QueryFullSchema,
   QuerySchema,
   RequestMakerDefinition,
-  RequestValidationErrorHandler,
   ResponseSchema,
-  ResponseValidationErrorHandler,
   RequestMaker,
+  ZoxiosMaker,
 } from './request-maker.type';
 import { RequestValidationError, ResponseValidationError } from './errors';
 import {
   defaultRequestValidationHandler,
   defaultResponseValidationHandler,
 } from './error-handler';
+import { errorHandlersSetters } from './request-maker.error-handler';
+import { optionsSetters } from './request-maker.options-setters';
+import { requestSchemaSetters } from './request-maker.schema-setters';
 
 async function handleValidatedResponse<ResponseType>(
   baseOptions: Partial<AxiosRequestConfig>,
@@ -94,9 +93,85 @@ function validateRequestItem<RequestItemType>(
   return parseResponse.data;
 }
 
-function getURL(host = '', path = '') {
-  return `${host}${path}`;
+function getDefinition(zoxiosMaker: ZoxiosMaker) {
+  const {
+    hostname,
+    querySchema,
+    bodySchema,
+    baseOptions,
+    responseSchema,
+    requestPath,
+  } = zoxiosMaker.zoxiosOptions;
+  return {
+    hostname,
+    querySchema,
+    bodySchema,
+    responseSchema,
+    method: baseOptions.method as Method,
+    path: requestPath,
+    options: baseOptions,
+    body: baseOptions.data,
+    query: baseOptions.params,
+  } as RequestMakerDefinition<undefined, undefined>;
 }
+
+function responseSchemaSetter<
+  SpecificResponseType extends z.infer<ResponseSchemaType>,
+  ResponseSchemaType extends ResponseSchema,
+>(zoxiosMaker: ZoxiosMaker, schema: ResponseSchemaType) {
+  zoxiosMaker.zoxiosOptions.responseSchema = schema;
+
+  return zoxiosMaker.requestMaker as RequestMaker<
+    undefined,
+    undefined,
+    SpecificResponseType
+  >;
+}
+
+async function exec(zoxiosMaker: ZoxiosMaker) {
+  return execRequest(
+    zoxiosMaker.zoxiosOptions.baseOptions,
+    zoxiosMaker.zoxiosOptions.asyncOptionsSetterMethod,
+    {
+      body: zoxiosMaker.zoxiosOptions.bodySchema,
+      query: zoxiosMaker.zoxiosOptions.querySchema,
+      response: zoxiosMaker.zoxiosOptions.responseSchema,
+    },
+  ).catch((error) => {
+    if (error instanceof RequestValidationError) {
+      return zoxiosMaker.zoxiosOptions.requestValidationErrorHandler(error);
+    }
+
+    if (error instanceof ResponseValidationError) {
+      return zoxiosMaker.zoxiosOptions.responseValidationErrorHandler(error);
+    }
+
+    throw error;
+  });
+}
+
+const zoxiosMaker = <ZoxiosMaker>function (host?: string) {
+  zoxiosMaker.zoxiosOptions = {
+    hostname: host,
+    baseOptions: { url: host },
+    requestValidationErrorHandler: defaultRequestValidationHandler,
+    responseValidationErrorHandler: defaultResponseValidationHandler,
+    requestPath: '',
+  };
+
+  zoxiosMaker.requestMaker = {
+    ...requestSchemaSetters(zoxiosMaker),
+    ...errorHandlersSetters(zoxiosMaker),
+    ...optionsSetters(zoxiosMaker),
+    getDefinition: () => getDefinition(zoxiosMaker),
+    exec: () => exec(zoxiosMaker),
+    responseSchema: <ResponseSchemaType extends ResponseSchema>(
+      schema: ResponseSchemaType,
+    ) => responseSchemaSetter(zoxiosMaker, schema),
+  };
+
+  return zoxiosMaker.requestMaker;
+};
 
 /**
   This wrapper allows to optionally validate the request / response / both using Zod.
@@ -119,131 +194,5 @@ function getURL(host = '', path = '') {
     .exec();
  */
 export function zoxios(host?: string): RequestMaker {
-  let hostname: string | undefined = host;
-
-  let baseOptions: AxiosRequestConfig = { url: hostname };
-  let asyncOptionsSetterMethod: AsyncOptionsSetterMethod;
-
-  let querySchema: QueryFullSchema;
-  let bodySchema: BodyFullSchema;
-  let responseSchema: ZodSchema | undefined;
-  let requestValidationErrorHandler: RequestValidationErrorHandler =
-    defaultRequestValidationHandler;
-  let responseValidationErrorHandler: ResponseValidationErrorHandler =
-    defaultResponseValidationHandler;
-  let requestPath = '';
-
-  const requestMaker: RequestMaker = {
-    getDefinition: () => {
-      return {
-        hostname,
-        querySchema,
-        bodySchema,
-        responseSchema,
-        method: baseOptions.method as Method,
-        path: requestPath,
-        options: baseOptions,
-        body: baseOptions.data,
-        query: baseOptions.params,
-      } as RequestMakerDefinition<undefined, undefined>;
-    },
-    host: (host: string) => {
-      hostname = host;
-      baseOptions.url = getURL(hostname, requestPath);
-
-      return requestMaker;
-    },
-    asyncOptionsSetter: (optionsSetter: AsyncOptionsSetterMethod) => {
-      asyncOptionsSetterMethod = optionsSetter;
-      return requestMaker;
-    },
-    handleRequestValidationError: (
-      handler: (error: RequestValidationError) => void,
-    ) => {
-      requestValidationErrorHandler = handler;
-
-      return requestMaker;
-    },
-    handleResponseValidationError: (
-      handler: (error: ResponseValidationError) => void,
-    ) => {
-      responseValidationErrorHandler = handler;
-
-      return requestMaker;
-    },
-    options: (options: Partial<AxiosRequestConfig>) => {
-      baseOptions = { ...baseOptions, ...options };
-      return requestMaker;
-    },
-    concatPath: (path: string) => {
-      requestPath += `/${path}`;
-      baseOptions.url = getURL(hostname, requestPath);
-      return requestMaker;
-    },
-    method: (method: Method) => {
-      baseOptions.method = method;
-      return requestMaker;
-    },
-    querySchema: <QuerySchemaType extends QuerySchema>(
-      schema: QuerySchemaType,
-    ) => {
-      querySchema = schema;
-
-      return requestMaker as unknown as RequestMaker<
-        QuerySchemaType,
-        undefined,
-        ZodSchema<unknown>
-      >;
-    },
-    query: <QueryType>(query: QueryType) => {
-      baseOptions.params = query;
-
-      return requestMaker;
-    },
-    responseSchema: <
-      SpecificResponseType extends z.infer<ResponseSchemaType>,
-      ResponseSchemaType extends ResponseSchema,
-    >(
-      schema: ResponseSchemaType,
-    ) => {
-      responseSchema = schema;
-
-      return requestMaker as RequestMaker<
-        undefined,
-        undefined,
-        SpecificResponseType
-      >;
-    },
-    exec: async () =>
-      execRequest(baseOptions, asyncOptionsSetterMethod, {
-        body: bodySchema,
-        query: querySchema,
-        response: responseSchema,
-      }).catch((error) => {
-        if (error instanceof RequestValidationError) {
-          return requestValidationErrorHandler(error);
-        }
-
-        if (error instanceof ResponseValidationError) {
-          return responseValidationErrorHandler(error);
-        }
-
-        throw error;
-      }),
-    bodySchema: <BodySchemaType extends BodySchema>(schema: BodySchemaType) => {
-      bodySchema = schema;
-      return requestMaker as unknown as RequestMaker<
-        undefined,
-        BodySchemaType,
-        ZodSchema<unknown>
-      >;
-    },
-    body: <BodyType>(body: BodyType) => {
-      baseOptions.data = body;
-
-      return requestMaker;
-    },
-  };
-
-  return requestMaker;
+  return zoxiosMaker(host);
 }
