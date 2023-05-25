@@ -107,7 +107,7 @@ function getURL(host = '', path = '') {
   Those errors contain all of the invalid properties in the request\response and the reason for the failure.
 
   @example
-  const response = await requestMaker('http://localhost')
+  const response = await zoxios('http://localhost')
     .concatPath('api')
     .concatPath('v2')
     .method('POST')
