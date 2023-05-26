@@ -140,3 +140,19 @@ export type RequestMaker<
     schema: ResponseSchemaType,
   ) => RequestMaker<QuerySchemaType, BodySchemaType, SpecificResponseType>;
 };
+
+export type ZoxiosMaker = {
+  (host?: string): RequestMaker;
+  zoxiosOptions: {
+    hostname?: string;
+    baseOptions: AxiosRequestConfig;
+    asyncOptionsSetterMethod?: AsyncOptionsSetterMethod;
+    querySchema?: QueryFullSchema;
+    bodySchema?: BodyFullSchema;
+    responseSchema?: ZodSchema;
+    requestValidationErrorHandler: RequestValidationErrorHandler;
+    responseValidationErrorHandler: ResponseValidationErrorHandler;
+    requestPath: string;
+  };
+  requestMaker: RequestMaker;
+};
