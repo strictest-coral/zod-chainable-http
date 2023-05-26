@@ -1,6 +1,6 @@
 {
   "name": "zoxios",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A chainable validated HTTP request maker",
   "engines": {
     "node": ">=14.17"
