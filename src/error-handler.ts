@@ -6,7 +6,7 @@ export function defaultHandleValidationError(
   const { requestOptions } = error.metadata;
 
   console.error(
-    `[${error.name}] - ${error.message}
+    `zoxios - [${error.name}] - ${error.message}
     timeout: ${requestOptions?.timeout}
     method: ${requestOptions?.method}
     url: ${requestOptions?.url}
