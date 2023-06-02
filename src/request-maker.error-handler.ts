@@ -1,8 +1,9 @@
-import { RequestValidationError, ResponseValidationError } from './errors';
-import { ZoxiosMaker } from './request-maker.type';
-
-type RequestValidationErrorHandler = (error: RequestValidationError) => void;
-type ResponseValidationErrorHandler = (error: ResponseValidationError) => void;
+import {
+  HttpErrorHandler,
+  RequestValidationErrorHandler,
+  ResponseValidationErrorHandler,
+  ZoxiosMaker,
+} from './request-maker.type';
 
 function handleRequestValidationError(
   zoxiosMaker: ZoxiosMaker,
@@ -22,10 +23,17 @@ function handleResponseValidationError(
   return zoxiosMaker.requestMaker;
 }
 
+function handleHttpError(zoxiosMaker: ZoxiosMaker, handler: HttpErrorHandler) {
+  zoxiosMaker.zoxiosOptions.httpErrorHandlers.push(handler);
+
+  return zoxiosMaker.requestMaker;
+}
+
 export function errorHandlersSetters(zoxiosMaker: ZoxiosMaker) {
   const binds = [null, zoxiosMaker] as const;
 
   return {
+    handleHttpError: handleHttpError.bind(...binds),
     handleRequestValidationError: handleRequestValidationError.bind(...binds),
     handleResponseValidationError: handleResponseValidationError.bind(...binds),
   };

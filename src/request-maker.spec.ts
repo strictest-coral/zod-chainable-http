@@ -375,4 +375,66 @@ describe(zoxios.name, () => {
       expect(definition.path).toEqual('/api/orders');
     });
   });
+
+  describe('when getting http response error', () => {
+    describe('when one handleHttpError is defined', () => {
+      it('should run the handler and handle the error', async () => {
+        const path = 'api';
+        const originalError = new Error('unknown error');
+        nock(host).get(`/${path}`).reply(500, originalError);
+        let didHandlerRun = false;
+
+        const response = await zoxios(host)
+          .concatPath(path)
+          .method('get')
+          .handleHttpError(() => {
+            didHandlerRun = true;
+            return null;
+          })
+          .exec();
+
+        expect(didHandlerRun).toBeTruthy();
+        expect(response).toBeNull();
+      });
+    });
+    describe('when multiple handleHttpError are defined', () => {
+      it('should run the handlers and handle the error', async () => {
+        const path = 'api';
+        const originalError = new Error('unknown error');
+        const newError = new Error('new error');
+        nock(host).get(`/${path}`).reply(500, originalError);
+        let didHandler1Run = false;
+        let didHandler2Run = false;
+
+        await expect(() =>
+          zoxios(host)
+            .concatPath(path)
+            .method('get')
+            .handleHttpError((error) => {
+              didHandler1Run = true;
+              throw error;
+            })
+            .handleHttpError(() => {
+              didHandler2Run = true;
+              throw newError;
+            })
+            .exec(),
+        ).rejects.toThrowError(newError);
+
+        expect(didHandler1Run).toBeTruthy();
+        expect(didHandler2Run).toBeTruthy();
+      });
+    });
+    describe('when an handleHttpError is not defined', () => {
+      const path = 'api';
+      it('should throw an error', async () => {
+        const error = new Error('Request failed with status code 500');
+        nock(host).get(`/${path}`).reply(500, error);
+
+        await expect(() =>
+          zoxios(host).concatPath(path).method('get').exec(),
+        ).rejects.toThrowError(error);
+      });
+    });
+  });
 });

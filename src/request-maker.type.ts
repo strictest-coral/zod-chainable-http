@@ -19,6 +19,8 @@ export type ResponseValidationErrorHandler = (
   error: ResponseValidationError,
 ) => void;
 
+export type HttpErrorHandler = (error: unknown) => void;
+
 type AsyncOptionsSetter<
   QueryType extends QueryFullSchema,
   BodyType extends BodyFullSchema,
@@ -41,6 +43,14 @@ type HandleResponseValidationError<
   ResponseType,
 > = (
   handler: ResponseValidationErrorHandler,
+) => RequestMaker<QueryType, BodyType, ResponseType>;
+
+type HandleHttpError<
+  QueryType extends QueryFullSchema,
+  BodyType extends BodyFullSchema,
+  ResponseType,
+> = (
+  handler: HttpErrorHandler,
 ) => RequestMaker<QueryType, BodyType, ResponseType>;
 
 type OptionsSetter<
@@ -133,6 +143,11 @@ export type RequestMaker<
     BodySchemaType,
     ResponseType
   >;
+  handleHttpError: HandleHttpError<
+    QuerySchemaType,
+    BodySchemaType,
+    ResponseType
+  >;
   responseSchema: <
     SpecificResponseType extends z.infer<ResponseSchemaType>,
     ResponseSchemaType extends ResponseSchema,
@@ -153,6 +168,7 @@ export type ZoxiosMaker = {
     requestValidationErrorHandler: RequestValidationErrorHandler;
     responseValidationErrorHandler: ResponseValidationErrorHandler;
     requestPath: string;
+    httpErrorHandlers: HttpErrorHandler[];
   };
   requestMaker: RequestMaker;
 };
