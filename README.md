@@ -214,3 +214,38 @@ const validatedRequestResponse1 = await requestMaker.exec();
 // GET https://localhost-2/api
 const validatedRequestResponse2 = await requestMaker.host('https://localhost-2').exec();
 ```
+
+## .handleHttpError
+Will add an http error handler that will handle errors thrown by axios, you should check if the provided error is an axios error (using isAxiosError) if you wish to handle those explicitly.
+
+The error-handlers you define will ran one after the other: each one will pass the error to the next error-handler in-line, if an error exists, otherwise it will resolve the promise and ignore the rest of the error-handlers.
+
+example for one error handler:
+```typescript
+// instead of throwing an error, null will be returned.
+await zoxios('https://localhost')
+    .concatPath('api')
+    .method('get')
+    .handleHttpError((error) => {
+        return null;
+    })
+    .exec()
+```
+
+
+example for multiple error handlers:
+
+```typescript
+// instead of the original error, the new error created will be thrown.
+await zoxios('https://localhost')
+    .concatPath('api')
+    .method('get')
+    .handleHttpError((error) => {
+        console.log(error);
+        throw error;
+    })
+    .handleHttpError(() => {
+        throw new Error('other error');
+    })
+    .exec()
+```

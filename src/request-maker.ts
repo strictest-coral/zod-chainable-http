@@ -8,6 +8,7 @@ import {
   ResponseSchema,
   RequestMaker,
   ZoxiosMaker,
+  HttpErrorHandler,
 } from './request-maker.type';
 import { RequestValidationError, ResponseValidationError } from './errors';
 import {
@@ -37,8 +38,31 @@ async function handleValidatedResponse<ResponseType>(
   return parseResponse.data;
 }
 
+async function handleHttpError(
+  error: unknown,
+  httpErrorHandlers: HttpErrorHandler[],
+) {
+  let currentError = error;
+  let response: unknown;
+
+  const isErrorUnHandled = httpErrorHandlers.every((errorHandler) => {
+    try {
+      response = errorHandler(error);
+      return false;
+    } catch (newError: unknown) {
+      currentError = newError;
+      return true;
+    }
+  });
+
+  if (isErrorUnHandled) throw currentError;
+
+  return response;
+}
+
 async function execRequest<ResponseType>(
   baseOptions: AxiosRequestConfig,
+  httpErrorHandlers: HttpErrorHandler[],
   asyncOptionsSetterMethod?: AsyncOptionsSetterMethod,
   schemas?: {
     query?: QuerySchema;
@@ -65,7 +89,9 @@ async function execRequest<ResponseType>(
     schemas?.body,
   );
 
-  const response = await axios(requestOptions);
+  const response = await axios(requestOptions).catch((error) => {
+    return { data: handleHttpError(error, httpErrorHandlers) };
+  });
 
   return handleValidatedResponse(
     requestOptions,
@@ -131,6 +157,7 @@ function responseSchemaSetter<
 async function exec(zoxiosMaker: ZoxiosMaker) {
   return execRequest(
     zoxiosMaker.zoxiosOptions.baseOptions,
+    zoxiosMaker.zoxiosOptions.httpErrorHandlers,
     zoxiosMaker.zoxiosOptions.asyncOptionsSetterMethod,
     {
       body: zoxiosMaker.zoxiosOptions.bodySchema,
@@ -157,6 +184,7 @@ const zoxiosMaker = <ZoxiosMaker>function (host?: string) {
     requestValidationErrorHandler: defaultRequestValidationHandler,
     responseValidationErrorHandler: defaultResponseValidationHandler,
     requestPath: '',
+    httpErrorHandlers: [],
   };
 
   zoxiosMaker.requestMaker = {
