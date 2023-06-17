@@ -2,6 +2,7 @@ node_modules
 .husky/_
 dist
 CHANGELOG.md
+README.md
 .github
 src
 tsconfig.json
