@@ -437,4 +437,23 @@ describe(zoxios.name, () => {
       });
     });
   });
+
+  describe('when changing definition', () => {
+    it('should keep the original request-maker the same', () => {
+      const requestMaker1 = zoxios('http://google.com')
+        .method('get')
+        .responseSchema(z.object({ name: z.string() }));
+
+      const requestMaker2 = requestMaker1
+        .method('post')
+        .responseSchema(z.object({ id: z.number() }));
+
+      const requestMaker1Definition = requestMaker1.getDefinition();
+      const requestMaker2Definition = requestMaker2.getDefinition();
+
+      expect(requestMaker1Definition.method).not.toEqual(
+        requestMaker2Definition.method,
+      );
+    });
+  });
 });
