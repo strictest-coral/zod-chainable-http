@@ -148,7 +148,7 @@ export function getURL(host = '', path = '') {
   return `${host}${path}`;
 }
 
-class Zoxios<
+export class Zoxios<
   QuerySchemaType extends QueryFullSchema = undefined,
   BodySchemaType extends BodyFullSchema = undefined,
   ResponseSchemaType extends ResponseFullSchema = undefined,

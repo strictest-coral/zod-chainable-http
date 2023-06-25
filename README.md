@@ -141,7 +141,7 @@ function getOrdersInDateRange(startDate: Date, endDate: Date) {
 Set axios options.
 Every options set here will be overridden if set again in later chains, by calling `options` or other method resetting the value you defined here. 
 ```typescript
-requestMaker('http://hostname').options({ timeout: 1000 });
+zoxios('http://hostname').options({ timeout: 1000 });
 ```
 
 ## .asyncOptionsSetter
