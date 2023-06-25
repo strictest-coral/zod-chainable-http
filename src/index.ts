@@ -1,5 +1,4 @@
 export type {
-  RequestMaker,
   AsyncOptionsSetterMethod,
   BodySchema,
   QuerySchema,
