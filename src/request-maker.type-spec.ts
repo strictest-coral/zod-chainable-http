@@ -18,7 +18,7 @@ export function validatedRequestTest() {
   type DefinitionType = ReturnType<typeof validatedRequest.getDefinition>;
 
   type BodySchemaType = ZodObject<{ name: ZodString }, "strip", ZodTypeAny, BodyType, BodyType>;
-  type QuerySchemaType = ZodObject<{ id: ZodNumber,startDate: ZodDate }, "strip", ZodTypeAny, QueryType, QueryType>;
+  type QuerySchemaType = ZodObject<{ id: ZodNumber, startDate: ZodDate }, "strip", ZodTypeAny, QueryType, QueryType>;
 
 
   type Tests = [

@@ -437,4 +437,36 @@ describe(zoxios.name, () => {
       });
     });
   });
+
+  describe('when changing definition', () => {
+    it('should keep the original request-maker the same', () => {
+      const requestMaker1 = zoxios('http://google.com')
+        .method('get')
+        .concatPath('api')
+        .responseSchema(z.object({ name: z.string() }));
+
+      const requestMaker2 = requestMaker1
+        .method('post')
+        .concatPath('auth')
+        .host('www.bing.com')
+        .responseSchema(z.object({ id: z.number() }));
+
+      const requestMaker1Definition = requestMaker1.getDefinition();
+      const requestMaker2Definition = requestMaker2.getDefinition();
+
+      expect(requestMaker1Definition.method).not.toEqual(
+        requestMaker2Definition.method,
+      );
+      expect(requestMaker1Definition.path).not.toEqual(
+        requestMaker2Definition.path,
+      );
+
+      expect(requestMaker1Definition.hostname).not.toEqual(
+        requestMaker2Definition.hostname,
+      );
+
+      expect(requestMaker1Definition.path).toEqual('/api');
+      expect(requestMaker2Definition.path).toEqual('/api/auth');
+    });
+  });
 });
