@@ -1,5 +1,5 @@
 import { AxiosRequestConfig, Method } from 'axios';
-import { z, ZodSchema } from 'zod';
+import { ZodSchema } from 'zod';
 import { RequestValidationError, ResponseValidationError } from './errors';
 
 export type QuerySchema = ZodSchema<Record<string, unknown>>;
