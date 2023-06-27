@@ -6,6 +6,7 @@ import { AxiosRequestConfig } from 'axios';
 export function validatedRequestTest() {
   const validatedRequest = zoxios('host')
     .bodySchema(z.object({ name: z.string() }))
+    .concatPath('path1')
     .querySchema(z.object({ id: z.number(), startDate: z.date() }))
     .responseSchema(
       z.array(z.object({ id: z.number(), type: z.enum(['type1', 'type2']) })),

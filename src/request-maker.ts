@@ -176,10 +176,13 @@ export class Zoxios<
       [optionType]: value,
     };
 
-    return new Zoxios(this.zoxiosOptions.hostname, {
-      ...this.zoxiosOptions,
-      baseOptions,
-    });
+    return new Zoxios<QuerySchemaType, BodySchemaType, ResponseSchemaType>(
+      this.zoxiosOptions.hostname,
+      {
+        ...this.zoxiosOptions,
+        baseOptions,
+      },
+    );
   }
 
   body<
@@ -227,7 +230,10 @@ export class Zoxios<
       requestPath: path,
     };
 
-    return new Zoxios(this.originalHost, zoxiosOptions);
+    return new Zoxios<QuerySchemaType, BodySchemaType, ResponseSchemaType>(
+      this.originalHost,
+      zoxiosOptions,
+    );
   }
 
   concatPath(path: string) {
@@ -266,7 +272,10 @@ export class Zoxios<
       asyncOptionsSetterMethod: optionsSetter,
     };
 
-    return new Zoxios(this.originalHost, zoxiosOptions);
+    return new Zoxios<QuerySchemaType, BodySchemaType, ResponseSchemaType>(
+      this.originalHost,
+      zoxiosOptions,
+    );
   }
 
   querySchema<SchemaType extends QuerySchema>(schema: SchemaType) {
@@ -275,7 +284,7 @@ export class Zoxios<
       querySchema: schema,
     };
 
-    return new Zoxios<SchemaType, BodySchemaType, ZodSchema<unknown>>(
+    return new Zoxios<SchemaType, BodySchemaType, ResponseSchemaType>(
       this.originalHost,
       zoxiosOptions,
     );
@@ -287,7 +296,7 @@ export class Zoxios<
       bodySchema: schema,
     };
 
-    return new Zoxios<QuerySchemaType, SchemaType, ZodSchema<unknown>>(
+    return new Zoxios<QuerySchemaType, SchemaType, ResponseSchemaType>(
       this.originalHost,
       zoxiosOptions,
     );
@@ -311,7 +320,10 @@ export class Zoxios<
       requestValidationErrorHandler: handler,
     };
 
-    return new Zoxios(this.originalHost, zoxiosOptions);
+    return new Zoxios<QuerySchemaType, BodySchemaType, ResponseSchemaType>(
+      this.originalHost,
+      zoxiosOptions,
+    );
   }
 
   handleResponseValidationError(handler: ResponseValidationErrorHandler) {
@@ -320,7 +332,10 @@ export class Zoxios<
       responseValidationErrorHandler: handler,
     };
 
-    return new Zoxios(this.originalHost, zoxiosOptions);
+    return new Zoxios<QuerySchemaType, BodySchemaType, ResponseSchemaType>(
+      this.originalHost,
+      zoxiosOptions,
+    );
   }
 
   handleHttpError(handler: HttpErrorHandler) {
@@ -329,7 +344,10 @@ export class Zoxios<
       httpErrorHandlers: [...this.zoxiosOptions.httpErrorHandlers, handler],
     };
 
-    return new Zoxios(this.originalHost, zoxiosOptions);
+    return new Zoxios<QuerySchemaType, BodySchemaType, ResponseSchemaType>(
+      this.originalHost,
+      zoxiosOptions,
+    );
   }
 
   exec<
