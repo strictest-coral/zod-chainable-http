@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.8](https://github.com/strictest-coral/zoxios/compare/v0.1.7...v0.1.8) (2023-06-27)
+
+
+### Bug Fixes
+
+* **types:** fix generic type getting lost when using concatPath and some other methods ([1546335](https://github.com/strictest-coral/zoxios/commit/1546335ed3f47629fdfdc75dc88e6497560900a2))
+
 ### [0.1.7](https://github.com/strictest-coral/zoxios/compare/v0.1.6...v0.1.7) (2023-06-26)
 
 ### [0.1.6](https://github.com/strictest-coral/zoxios/compare/v0.1.5...v0.1.6) (2023-06-26)
