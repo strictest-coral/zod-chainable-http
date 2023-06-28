@@ -11,24 +11,32 @@ export type ResponseValidationErrorMetadata = {
   requestOptions?: Partial<AxiosRequestConfig>;
 };
 
-export class RequestValidationError extends Error {
+export class ZoxiosValidationError extends Error {
   constructor(
     public zodError: ZodError,
-    public metadata: RequestValidationErrorMetadata,
-    public override message: string = 'HTTP Request Validation Failed',
+    public override name: string = 'ZoxiosValidationError',
+    public override message: string = 'HTTP Validation Failed',
   ) {
     super(message);
-    this.name = 'RequestValidationError';
   }
 }
 
-export class ResponseValidationError extends Error {
+export class RequestValidationError extends ZoxiosValidationError {
   constructor(
-    public zodError: ZodError,
+    public override zodError: ZodError,
+    public metadata: RequestValidationErrorMetadata,
+    public override message: string = 'HTTP Request Validation Failed',
+  ) {
+    super(zodError, 'RequestValidationError', message);
+  }
+}
+
+export class ResponseValidationError extends ZoxiosValidationError {
+  constructor(
+    public override zodError: ZodError,
     public metadata: ResponseValidationErrorMetadata,
     public override message: string = 'HTTP Response Validation Failed',
   ) {
-    super(message);
-    this.name = 'ResponseValidationError';
+    super(zodError, 'ResponseValidationError', message);
   }
 }

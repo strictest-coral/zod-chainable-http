@@ -3,7 +3,11 @@
 import nock from 'nock';
 import { z } from 'zod';
 import { zoxios } from './request-maker';
-import { RequestValidationError, ResponseValidationError } from './errors';
+import {
+  RequestValidationError,
+  ResponseValidationError,
+  ZoxiosValidationError,
+} from './errors';
 
 const host = 'https://localhost/api';
 
@@ -176,6 +180,31 @@ describe(zoxios.name, () => {
               .exec(),
           ).rejects.toThrowError(RequestValidationError);
 
+          expect(nockScope.isDone()).toBe(false);
+        });
+
+        it('should not make the request and throw RequestValidationError with zod issues', async () => {
+          const nockScope = nock(host)
+            .post(`/${path}`, requestBody)
+            .reply(200, response);
+
+          const returnedError = await zoxios(host)
+            .concatPath(path)
+            .method('post')
+            .bodySchema(z.object({ name: z.string(), street: z.string() }))
+            .body(requestBody as any)
+            .exec()
+            .catch((error) => error);
+
+          expect(returnedError).toBeInstanceOf(RequestValidationError);
+          expect(returnedError).toBeInstanceOf(ZoxiosValidationError);
+          expect(returnedError).toHaveProperty('zodError');
+          expect(
+            (returnedError as ZoxiosValidationError).zodError.issues,
+          ).toHaveLength(1);
+          expect((returnedError as RequestValidationError).name).toBe(
+            'RequestValidationError',
+          );
           expect(nockScope.isDone()).toBe(false);
         });
 
