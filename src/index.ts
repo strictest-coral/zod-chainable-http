@@ -9,6 +9,9 @@ export type {
 export type {
   ResponseValidationErrorMetadata,
   RequestValidationErrorMetadata,
+  ResponseValidationError,
+  RequestValidationError,
+  ZoxiosValidationError,
 } from './errors';
 export { zoxios, Zoxios } from './request-maker';
 export {
@@ -16,4 +19,3 @@ export {
   defaultRequestValidationHandler,
   defaultResponseValidationHandler,
 } from './error-handler';
-export { RequestValidationError, ResponseValidationError } from './errors';
