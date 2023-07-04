@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.11](https://github.com/strictest-coral/zoxios/compare/v0.1.10...v0.1.11) (2023-07-04)
+
+
+### Bug Fixes
+
+* **http-error-handler:** fix error handling for http errors ([a8f1a72](https://github.com/strictest-coral/zoxios/commit/a8f1a72bd22e84dcf9257f48f05177d8c3698764))
+
 ### [0.1.10](https://github.com/strictest-coral/zoxios/compare/v0.1.9...v0.1.10) (2023-06-28)
 
 ### [0.1.9](https://github.com/strictest-coral/zoxios/compare/v0.1.8...v0.1.9) (2023-06-28)
