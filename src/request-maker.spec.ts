@@ -284,7 +284,7 @@ describe(zoxios.name, () => {
     describe('when response fails with status 500', () => {
       beforeEach(beforeEachBlock);
 
-      it('should return the response', async () => {
+      it('should throw axios error', async () => {
         const response1: unknown[] = [];
         const responseSchema = z.array(
           z.object({ productId: z.number(), quantity: z.number() }),
