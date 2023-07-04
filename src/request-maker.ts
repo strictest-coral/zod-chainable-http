@@ -90,8 +90,8 @@ async function execRequest<ResponseType>(
     schemas?.body,
   );
 
-  const response = await axios(requestOptions).catch((error) => {
-    return { data: handleHttpError(error, httpErrorHandlers) };
+  const response = await axios(requestOptions).catch(async (error) => {
+    return { data: await handleHttpError(error, httpErrorHandlers) };
   });
 
   return handleValidatedResponse(

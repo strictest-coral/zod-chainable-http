@@ -9,6 +9,7 @@ import {
   ResponseValidationError,
   ZoxiosValidationError,
 } from './errors';
+import { AxiosError } from 'axios';
 
 const host = 'https://localhost/api';
 
@@ -277,6 +278,28 @@ describe(zoxios.name, () => {
 
         expect(nockScope.isDone()).toBe(true);
         expect(validatedRequestResponse).toMatchObject(response);
+      });
+    });
+
+    describe('when response has status 500', () => {
+      beforeEach(beforeEachBlock);
+
+      it('should return the response', async () => {
+        const response1: unknown[] = [];
+        const responseSchema = z.array(
+          z.object({ productId: z.number(), quantity: z.number() }),
+        );
+
+        const nockScope = nock(host).get(`/${path}`).reply(500, response1);
+
+        const error = await zoxios(host)
+          .concatPath(path)
+          .responseSchema(responseSchema)
+          .exec()
+          .catch((error) => error);
+
+        expect(nockScope.isDone()).toBe(true);
+        expect(error).toBeInstanceOf(AxiosError);
       });
     });
   });
