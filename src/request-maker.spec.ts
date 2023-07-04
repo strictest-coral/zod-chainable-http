@@ -281,7 +281,7 @@ describe(zoxios.name, () => {
       });
     });
 
-    describe('when response has status 500', () => {
+    describe('when response fails with status 500', () => {
       beforeEach(beforeEachBlock);
 
       it('should return the response', async () => {
