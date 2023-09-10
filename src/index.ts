@@ -9,6 +9,8 @@ export type {
 export type {
   ResponseValidationErrorMetadata,
   RequestValidationErrorMetadata,
+} from './errors';
+export {
   ResponseValidationError,
   RequestValidationError,
   ZoxiosValidationError,
